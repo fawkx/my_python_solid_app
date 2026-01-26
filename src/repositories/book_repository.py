@@ -1,5 +1,5 @@
 import json
-from ..domain.book import Book
+from src.domain.book import Book
 from .book_repository_protocol import BookRepositoryProtocol
 
 
