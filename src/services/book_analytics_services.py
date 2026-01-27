@@ -55,11 +55,17 @@ class BookAnalyticsService:
         genres = np.array([b.genre for b in books])
         result = {}
 
+        # Loop over each unique genre
         for g in np.unique(genres):
             genre = str(g)
+            # boolean mask - “Which books belong to this genre?”
             mask = genres == g
+            # Select prices for this genre
             vals = prices[mask]
+            # Remove missing prices
             vals = vals[~np.isnan(vals)]
+
+            # Compute median
             if vals.size > 0:
                 result[genre] = float(np.nanmedian(vals))
             else:
@@ -71,19 +77,24 @@ class BookAnalyticsService:
         # Compute z-score of ratings_count across books; return map book_id -> zscore.
         # Handle zero variance.
         result ={}
+        # Filter out books with missing data
         valid_books = [b for b in books if b.ratings_count is not None]
         
+        # Handle empty input
         if not valid_books:
             return result
 
         ratings = np.array([b.average_rating for b in books])
 
+        # Compute mean and standard deviation
         mean = ratings.mean()
         std = ratings.std()
 
+        # Handle zero variance
         if std == 0:
             return {b.book_id: 0.0 for b in valid_books}
         
+        # Compute z-scores
         for b in valid_books:
             result[b.book_id] = float((b.ratings_count - mean) / std)
         
