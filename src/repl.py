@@ -41,12 +41,19 @@ class BookREPL:
             self.get_value_score()
         elif cmd == 'getMedianPriceByGenre':
             self.get_median_price_by_genre()
+        elif cmd == 'getPopularityZscores':
+            self.get_popularity_zscores()
         elif cmd == "help":
             print(
-                "Available commands: addBook, getAllRecords, findByName, deleteBook, updateBook, getJoke, getAveragePrice, getTopBooks, getValueScore, getMedianPriceByGenre, help, exit"
+                "Available commands: addBook, getAllRecords, findByName, deleteBook, updateBook, getJoke, getAveragePrice, getTopBooks, getValueScore, getMedianPriceByGenre, getPopularityZscores, help, exit"
             )
         else:
             print("Please use a valid command!")
+
+    def get_popularity_zscores(self):
+        books = self.book_service.get_all_books()
+        zscore = self.book_analytics_service.popularity_zscores(books)
+        print(zscore)
 
     def get_median_price_by_genre(self):
         books = self.book_service.get_all_books()
@@ -164,7 +171,7 @@ class BookREPL:
             print(f"Error updating book: {e}")
 
 
-if __name__ == "__main__":  
+if __name__ == "__main__":
     generate_books_json()
     repo = BookRepository("books.json")
     book_svc = BookService(repo)

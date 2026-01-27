@@ -66,3 +66,25 @@ class BookAnalyticsService:
                 result[genre] = float("nan")
 
         return result
+
+    def popularity_zscores(self, books: list[Book]) -> dict[str, float]:
+        # Compute z-score of ratings_count across books; return map book_id -> zscore.
+        # Handle zero variance.
+        result ={}
+        valid_books = [b for b in books if b.ratings_count is not None]
+        
+        if not valid_books:
+            return result
+
+        ratings = np.array([b.average_rating for b in books])
+
+        mean = ratings.mean()
+        std = ratings.std()
+
+        if std == 0:
+            return {b.book_id: 0.0 for b in valid_books}
+        
+        for b in valid_books:
+            result[b.book_id] = float((b.ratings_count - mean) / std)
+        
+        return result
