@@ -12,7 +12,7 @@ class BookRepository(BookRepositoryProtocol):
             data = json.load(f)
             return [Book.from_dict(item) for item in data]
 
-    def add_book(self, book: Book) -> str:
+    def add_book(self, book: Book | list[Book]) -> str | list[str]:
         books = self.get_all_books()
         # support adding a single Book or a list of Book
         if isinstance(book, list):

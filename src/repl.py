@@ -39,12 +39,19 @@ class BookREPL:
             self.get_top_books()
         elif cmd == 'getValueScore':
             self.get_value_score()
+        elif cmd == 'getMedianPriceByGenre':
+            self.get_median_price_by_genre()
         elif cmd == "help":
             print(
-                "Available commands: addBook, getAllRecords, findByName, deleteBook, updateBook, getJoke, getAveragePrice, getTopBooks, getValueScore, help, exit"
+                "Available commands: addBook, getAllRecords, findByName, deleteBook, updateBook, getJoke, getAveragePrice, getTopBooks, getValueScore, getMedianPriceByGenre, help, exit"
             )
         else:
             print("Please use a valid command!")
+
+    def get_median_price_by_genre(self):
+        books = self.book_service.get_all_books()
+        median = self.book_analytics_service.median_price_by_genre(books)
+        print(median)
 
     def get_average_price(self):
         books = self.book_service.get_all_books()

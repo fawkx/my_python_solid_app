@@ -7,12 +7,13 @@ from src.domain.book import Book
 # 2. notice how methods take in books, and return normal datatypes NOT ndarrays
 #   - this service and numpy are ISOLATED, this will keep our functions PURE and
 
+
 class BookAnalyticsService:
-    
+
     def average_price(self, books: list[Book]) -> float:
         prices = np.array([b.price_usd for b in books], dtype=float)
         return float(prices.mean())
-    
+
     def top_rated(self, books: list[Book], min_ratings: int = 1000, limit: int = 10):
         ratings = np.array([b.ratings_count for b in books])
         counts = np.array([b.ratings_count for b in books])
@@ -28,7 +29,7 @@ class BookAnalyticsService:
         scores = ratings[mask]
         sorted_idx = np.argsort(scores)[::-1]
         return filteredBooks[sorted_idx].tolist()[limit]
-    
+
     # value score = rating * log(ratings_count) / price
     def value_scores(self, books: list[Book]) -> dict[str, float]:
         ratings = np.array([b.average_rating for b in books])
@@ -37,7 +38,7 @@ class BookAnalyticsService:
 
         scores = (ratings * np.log1p(counts)) / prices
 
-        return{
+        return {
             # zip() iterates both lists in parallel
             # pairing each book with its corresponding score
             # zip() will stop automatically if one list is shorter
@@ -45,3 +46,23 @@ class BookAnalyticsService:
             book.book_id: float(score)
             for book, score in zip(books, scores)
         }
+
+    def median_price_by_genre(self, books: list[Book]) -> dict[str, float]:
+        # Group books by genre, compute median price per genre.
+        # Return mapping genre -> median price.
+        # Edge: genres with no priced books; single-book genres.
+        prices = np.array([b.price_usd for b in books], dtype=float)
+        genres = np.array([b.genre for b in books])
+        result = {}
+
+        for g in np.unique(genres):
+            genre = str(g)
+            mask = genres == g
+            vals = prices[mask]
+            vals = vals[~np.isnan(vals)]
+            if vals.size > 0:
+                result[genre] = float(np.nanmedian(vals))
+            else:
+                result[genre] = float("nan")
+
+        return result
