@@ -3,12 +3,13 @@ from .services import generate_books_json
 from .domain.book import Book
 from .services.book_service import BookService
 from .repositories.book_repository import BookRepository
-
+from .services.book_analytics_services import BookAnalyticsService
 
 class BookREPL:
-    def __init__(self, book_service):
+    def __init__(self, book_service, book_analytics_service):
         self.running = True
         self.book_service = book_service
+        self.book_analytics_service = book_analytics_service
 
     def start(self):
         print("Welcome to the book app! Type 'Help' for a list of commands!")
@@ -32,12 +33,33 @@ class BookREPL:
             self.delete_book()
         elif cmd == "updateBook":
             self.update_book()
+        elif cmd == 'getAveragePrice':
+            self.get_average_price()
+        elif cmd == 'getTopBooks':
+            self.get_top_books()
+        elif cmd == 'getValueScore':
+            self.get_value_score()
         elif cmd == "help":
             print(
-                "Available commands: addBook, getAllRecords, findByName, deleteBook, updateBook, getJoke, help, exit"
+                "Available commands: addBook, getAllRecords, findByName, deleteBook, updateBook, getJoke, getAveragePrice, getTopBooks, getValueScore, help, exit"
             )
         else:
             print("Please use a valid command!")
+
+    def get_average_price(self):
+        books = self.book_service.get_all_books()
+        avg_price = self.book_analytics_service.average_price(books)
+        print(avg_price)
+
+    def get_top_books(self):
+        books = self.book_service.get_all_books()
+        top_rated_books = self.book_analytics_service.top_rated(books)
+        print(top_rated_books)
+
+    def get_value_score(self):
+        books = self.book_service.get_all_books()
+        value_scores = self.book_analytics_service.value_scores(books)
+        print(value_scores)
 
     def get_joke(self):
         try:
@@ -135,9 +157,10 @@ class BookREPL:
             print(f"Error updating book: {e}")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  
     generate_books_json()
     repo = BookRepository("books.json")
     book_svc = BookService(repo)
-    repl = BookREPL(book_svc)
+    book_analytics_svc = BookAnalyticsService()
+    repl = BookREPL(book_svc, book_analytics_svc)
     repl.start()
