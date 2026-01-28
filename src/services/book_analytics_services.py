@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from src.domain.book import Book
 
 # Ground rules for numpy:
