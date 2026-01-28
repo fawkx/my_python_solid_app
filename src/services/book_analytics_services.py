@@ -100,3 +100,33 @@ class BookAnalyticsService:
             result[b.book_id] = float((b.ratings_count - mean) / std)
         
         return result
+
+    def top_rated_with_pandas(self, books: list, min_ratings: int = 1000, limit: int = 10) -> list:
+        df = pd.DataFrame([{
+            'book': b,
+            'avg': b.average_rating,
+            'count': b.ratings_count
+        } for b in books])
+        filtered = df[df['count'] >= min_ratings].sort_values('avg', ascending=False)
+        return filtered['book'].tolist()[:limit]
+
+    def value_scores_with_pandas(self, books: list, limit: int = 10) -> dict[str, float]:
+        df = pd.DataFrame([{
+            'book_id': b.book_id,
+            'avg': b.average_rating,
+            'count': b.ratings_count,
+            'price': b.price_usd
+        } for b in books])
+        df['score'] = df['avg'] * np.log1p(df['count']) / df['price']
+        # set_index() sets book_id as the index
+        # we do this because we want to end up with a dict[str, float]
+        # where book_id is the key and the value score is the float
+        # sometimes numpy works with float64, but we need to return float,
+        # hence the defensive use of .astype()
+        return (
+            df
+            .sort_values('score', ascending=False)
+            .head(limit)
+            .set_index('book_id')['score']
+            .astype(float).to_dict()
+        ) 

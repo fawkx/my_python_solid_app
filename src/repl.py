@@ -1,5 +1,6 @@
 import requests
 from .services import generate_books_json
+from .services.book_generator_bad_data_service import generate_books as get_bad_books
 from .domain.book import Book
 from .services.book_service import BookService
 from .repositories.book_repository import BookRepository
@@ -67,12 +68,12 @@ class BookREPL:
 
     def get_top_books(self):
         books = self.book_service.get_all_books()
-        top_rated_books = self.book_analytics_service.top_rated(books)
+        top_rated_books = self.book_analytics_service.top_rated_with_pandas(books)
         print(top_rated_books)
 
     def get_value_score(self):
         books = self.book_service.get_all_books()
-        value_scores = self.book_analytics_service.value_scores(books)
+        value_scores = self.book_analytics_service.value_scores_with_pandas(books)
         print(value_scores)
 
     def get_joke(self):
@@ -173,6 +174,7 @@ class BookREPL:
 
 if __name__ == "__main__":
     generate_books_json()
+    get_bad_books()
     repo = BookRepository("books.json")
     book_svc = BookService(repo)
     book_analytics_svc = BookAnalyticsService()
